@@ -1,7 +1,9 @@
 package ru.ifmo.testlib;
 
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -18,6 +20,7 @@ import java.util.Map;
 public class FileInStream implements InStream {
 	/** A file to read data from. */
 	private final File file;
+	private final InputStream input;
 
 	/** Current character. */
 	private int currChar;
@@ -35,6 +38,13 @@ public class FileInStream implements InStream {
 	 */
 	FileInStream(File file, Map<Outcome.Type, Outcome.Type> outcomeMapping) {
 		this.file = file;
+		this.input = null;
+		this.outcomeMapping = outcomeMapping;
+		reset();
+	}
+	FileInStream(InputStream input, Map<Outcome.Type, Outcome.Type> outcomeMapping) {
+		this.file = null;
+		this.input = input;
 		this.outcomeMapping = outcomeMapping;
 		reset();
 	}
@@ -44,7 +54,8 @@ public class FileInStream implements InStream {
 			if (reader != null) {
 				reader.close();
 			}
-			reader = new BufferedReader(new FileReader(file));
+			if (file != null) reader = new BufferedReader(new FileReader(file));
+			else reader = new BufferedReader(new InputStreamReader(input));
 		} catch (IOException ex) {
 		    // The output file might not exist, because the participant is "evil".
 			throw quit(Outcome.Type.PE, "File not found: " + ex.toString());

@@ -14,6 +14,7 @@ import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import static ru.ifmo.testlib.Outcome.Type.*;
+import ru.ifmo.testlib.verifiers.DOMJudgeResultAdapter;
 import ru.ifmo.testlib.verifiers.EJudgeResultAdapter;
 import ru.ifmo.testlib.verifiers.IFMOResultAdapter;
 import ru.ifmo.testlib.verifiers.KittenResultAdapter;
@@ -27,7 +28,7 @@ import ru.ifmo.testlib.verifiers.KittenResultAdapter;
  * @author Sergey Melnikov
  */
 public class CheckerFramework {
-    private static final String DEFAULT_RESULT_ADAPTER = "checker-type:ifmo";
+    private static final String DEFAULT_RESULT_ADAPTER = "checker-type:dom";
     private static final String CHECKER_CLASS_ENTRY = "Checker-Class";
     private static final String EXPECTED_EXIT_CODE_PROPERTY = "testlib.expected.exitcode";
     private static final String SYS_EXIT_DISABLED = "System.exit(int) did not exit. Exiting abnormally.";
@@ -42,6 +43,7 @@ public class CheckerFramework {
     }
 
     static {
+        registerResultAdapter("checker-type:dom", new DOMJudgeResultAdapter());
         registerResultAdapter("checker-type:ifmo", new IFMOResultAdapter());
         registerResultAdapter("checker-type:kitten", new KittenResultAdapter());
         registerResultAdapter("checker-type:ejudge", new EJudgeResultAdapter());
@@ -162,7 +164,7 @@ public class CheckerFramework {
 
         Outcome outcome;
         try (InStream input = new FileInStream(new File(args[delta]), Outcome.nonOkayIsFail);
-             InStream output = new FileInStream(new File(args[1 + delta]), Collections.emptyMap());
+             InStream output = "-".equals(args[1 + delta]) ? new FileInStream(System.in, Collections.emptyMap()) : new FileInStream(new File(args[1 + delta]), Collections.emptyMap());
              InStream answer = new FileInStream(new File(args[2 + delta]), Outcome.nonOkayIsFail)) {
             try {
                 outcome = checker.test(input, output, answer);
