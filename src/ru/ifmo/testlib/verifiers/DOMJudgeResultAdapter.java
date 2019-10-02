@@ -26,10 +26,10 @@ public class DOMJudgeResultAdapter implements ResultAdapter {
     public int getExitCodeFor(Outcome outcome) {
         switch (outcome.getType()) {
             case OK:   return 42;
-            case WA:   return 43;
-            case PE:
+            case WA:
+            case PE:   return 43;
             case FAIL:
-            default:   return 43;
+            default:   return 1;
         }
     }
 
